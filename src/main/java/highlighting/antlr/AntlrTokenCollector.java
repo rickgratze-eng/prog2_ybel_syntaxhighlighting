@@ -31,6 +31,52 @@ public class AntlrTokenCollector extends SyntaxHighlighter {
   // present).
   @Override
   public List<HighlightRegion> collectMatches(String text) {
-    throw new UnsupportedOperationException("not implemented yet");
+    var lexer = new MiniJavaLexer(CharStreams.fromString(text));
+    var tokens = lexer.getAllTokens();
+
+    var regions = new java.util.ArrayList<HighlightRegion>();
+
+    for (Token token : tokens) {
+      int start = token.getStartIndex();
+      int end = token.getStopIndex() + 1;
+
+      Color colour = null;
+
+      switch (token.getType()) {
+        case MiniJavaLexer.STRING_LITERAL ->
+            colour = highlighting.presets.MiniJavaColours.STRING_LITERAL_COLOUR;
+        case MiniJavaLexer.CHAR_LITERAL ->
+            colour = highlighting.presets.MiniJavaColours.CHAR_LITERAL_COLOUR;
+        case MiniJavaLexer.LINE_COMMENT ->
+            colour = highlighting.presets.MiniJavaColours.LINE_COMMENT_COLOUR;
+        case MiniJavaLexer.BLOCK_COMMENT ->
+            colour = highlighting.presets.MiniJavaColours.BLOCK_COMMENT_COLOUR;
+        case MiniJavaLexer.JAVADOC_COMMENT ->
+            colour = highlighting.presets.MiniJavaColours.JAVADOC_COMMENT_COLOUR;
+        case MiniJavaLexer.PACKAGE,
+            MiniJavaLexer.IMPORT,
+            MiniJavaLexer.CLASS,
+            MiniJavaLexer.PUBLIC,
+            MiniJavaLexer.PRIVATE,
+            MiniJavaLexer.FINAL,
+            MiniJavaLexer.RETURN,
+            MiniJavaLexer.NULL,
+            MiniJavaLexer.NEW,
+            MiniJavaLexer.IF,
+            MiniJavaLexer.ELSE,
+            MiniJavaLexer.WHILE ->
+            colour = highlighting.presets.MiniJavaColours.KEYWORD_COLOUR;
+        case MiniJavaLexer.AT -> colour = highlighting.presets.MiniJavaColours.ANNOTATION_COLOUR;
+        default -> {
+          // Token bleibt ohne Farbe.
+        }
+      }
+
+      if (colour != null) {
+        regions.add(new HighlightRegion(start, end, colour));
+      }
+    }
+
+    return regions;
   }
 }
